@@ -1,0 +1,52 @@
+version: "3"
+
+networks:
+  public:
+    driver: overlay
+    ipam:
+      driver: default
+      config:
+      - subnet: 10.1.0.0/24
+      
+services:
+  traefik:
+    image: traefik:v1.6
+    command: --api 
+      --docker 
+      --docker.swarmmode 
+      --docker.watch 
+      --docker.domain=traefik 
+      --logLevel=DEBUG 
+      --entryPoints="Name:https Address::443 TLS"
+      --entryPoints="Name:http Address::80 Redirect.EntryPoint:https"
+      --acme=true 
+      --acme.email=office@hanneslau.de 
+      --acme.storage="acme.json" 
+      --acme.entrypoint=https 
+      --acme.acmelogging=true 
+      --acme.dnschallenge.provider=digitalocean
+      --acme.domains="*.$DEMO_SERVER_HOSTNAME"
+      --defaultentrypoints=https,http
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+    networks:
+      - public
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+      labels:
+        # add http routing for own dashboard on port 8080
+        - "traefik.backend=traefik_dashboard"
+        - "traefik.port=8080"
+        - "traefik.frontend.rule=Host:traefik.$DEMO_SERVER_HOSTNAME"
+        - "traefik.docker.network=traefik_public"
+        - "traefik.frontend.auth.basic=$traefik_basic_auth_string"
+    environment: 
+      - "DO_AUTH_TOKEN=$DIGITALOCEAN_ACCESS_TOKEN"

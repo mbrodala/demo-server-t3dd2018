@@ -1,0 +1,19 @@
+version: '3'
+
+networks:
+  traefik_public:
+    external:
+      name: traefik_public
+
+services:
+  jenkins:
+    build: .
+    image: registry.$DEMO_SERVER_HOSTNAME/jenkins-docker:lts
+    networks:
+      - traefik_public
+    deploy:
+      labels:
+        - "traefik.port=8080"
+        - "traefik.docker.network=traefik_public"
+        - "traefik.frontend.rule=Host: jenkins.$DEMO_SERVER_HOSTNAME"
+    restart: unless-stopped

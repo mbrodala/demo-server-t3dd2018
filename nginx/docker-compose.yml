@@ -1,0 +1,17 @@
+version: '3'
+
+networks:
+  traefik_public:
+    external:
+      name: traefik_public
+
+services:
+  nginx:
+    image: nginx
+    networks:
+      - traefik_public
+    deploy:
+      labels:
+        - "traefik.port=80"
+        - "traefik.docker.network=traefik_public"
+        - "traefik.frontend.rule=Host: nginx.$DEMO_SERVER_HOSTNAME"
