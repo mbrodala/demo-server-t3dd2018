@@ -29,7 +29,6 @@ LB_DASHBOARD_BASIC_AUTH_PASSWORD=admin
 # Create a new docker node at DO
 docker-machine create \
   --driver digitalocean \
-  --digitalocean-monitoring \
   --tls-san $DEMO_SERVER_HOSTNAME \
   $DEMO_SERVER_HOSTNAME
   
