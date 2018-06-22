@@ -29,13 +29,11 @@ LB_DASHBOARD_BASIC_AUTH_PASSWORD=admin
 # Create a new docker node at DO
 docker-machine create \
   --driver digitalocean \
+  --digitalocean-monitoring \
   --tls-san $DEMO_SERVER_HOSTNAME \
   $DEMO_SERVER_HOSTNAME
   
-export swarm_master_ip=`docker-machine ip $DEMO_SERVER_HOSTNAME`
-
-# Install digitalocean monitoring
-docker-machine ssh $DEMO_SERVER_HOSTNAME 'curl -sSL https://agent.digitalocean.com/install.sh | sh'
+export swarm_master_ip=`docker-machine ip $DEMO_SERVER_HOSTNAME
 
 # Make the new node a docker swarm master
 docker-machine ssh $DEMO_SERVER_HOSTNAME docker swarm init --advertise-addr=${swarm_master_ip}
